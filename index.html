@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achei Imóveis | Performance de Corretores & Dashboard de Leads</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-building-circle-check"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>ACHEI <span>IMÓVEIS</span></h2>
+                    <span class="logo-subtitle">Gestão & Analytics</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#overview" class="nav-item active" data-tab="overview">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Visão Geral</span>
+                </a>
+                <a href="#desempenho" class="nav-item" data-tab="desempenho">
+                    <i class="fa-solid fa-chart-user"></i>
+                    <span>Desempenho por Corretor</span>
+                    <span class="badge badge-gold" style="font-size: 10px; padding: 2px 6px;">Novo</span>
+                </a>
+                <a href="#funnel" class="nav-item" data-tab="funnel">
+                    <i class="fa-solid fa-filter"></i>
+                    <span>Funil Comercial</span>
+                </a>
+                <a href="#corretores" class="nav-item" data-tab="corretores">
+                    <i class="fa-solid fa-user-tie"></i>
+                    <span>Corretores</span>
+                </a>
+                <a href="#leads" class="nav-item" data-tab="leads">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Leads Integrados</span>
+                </a>
+                <a href="#meta-ads" class="nav-item" data-tab="meta-ads">
+                    <i class="fa-brands fa-meta"></i>
+                    <span>Meta Ads</span>
+                    <span class="badge badge-meta" id="meta-badge-count">13</span>
+                </a>
+                <a href="#distribuicao" class="nav-item" data-tab="distribuicao">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    <span>Atribuição Rápida</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-campaign-info">
+                <div class="campaign-card">
+                    <div class="campaign-header">
+                        <i class="fa-solid fa-bullhorn"></i>
+                        <span>Campanha Ativa</span>
+                    </div>
+                    <h4>VENTANA 160726</h4>
+                    <p>Shopping Indianópolis</p>
+                    <div class="campaign-status">
+                        <span class="pulse-dot"></span> Em Andamento
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">ADM</div>
+                    <div class="user-info">
+                        <span class="user-name">Gestão Comercial</span>
+                        <span class="user-role">ADM Achei Imóveis</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard de Performance Comercial</h1>
+                    <p class="subtitle">Metrificação de corretores e controle integrado CRM Supremo + Meta Ads</p>
+                </div>
+
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="global-search" placeholder="Buscar por cliente, corretor ou telefone...">
+                    </div>
+
+                    <button class="btn btn-outline" id="btn-sync-sheets">
+                        <i class="fa-solid fa-cloud-arrow-down"></i> Sincronizar CRM Supremo
+                    </button>
+
+                    <button class="btn btn-outline" id="btn-export-csv">
+                        <i class="fa-solid fa-file-export"></i> Exportar CSV
+                    </button>
+
+                    <button class="btn btn-primary" id="btn-distribute-modal">
+                        <i class="fa-solid fa-bolt"></i> Distribuir Leads Meta
+                    </button>
+                </div>
+            </header>
+
+            <!-- Global Filters Bar -->
+            <section class="global-filter-strip">
+                <div class="filter-strip-container">
+                    <div class="filter-strip-title">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Filtros Globais:</span>
+                    </div>
+
+                    <!-- Broker Filter -->
+                    <div class="filter-item">
+                        <label for="global-filter-corretor"><i class="fa-solid fa-user-tie"></i> Corretor:</label>
+                        <select id="global-filter-corretor" class="global-select">
+                            <option value="ALL">Todos os Corretores</option>
+                        </select>
+                    </div>
+
+                    <!-- Last Update Date Filter Presets -->
+                    <div class="filter-item">
+                        <label for="global-filter-date-preset"><i class="fa-solid fa-calendar-day"></i> Última Atualização:</label>
+                        <select id="global-filter-date-preset" class="global-select">
+                            <option value="ALL">Todas as Datas</option>
+                            <option value="TODAY">Hoje (27/07/2026)</option>
+                            <option value="YESTERDAY">Ontem (26/07/2026)</option>
+                            <option value="CUSTOM">Período Personalizado...</option>
+                        </select>
+                    </div>
+
+                    <!-- Custom Date Range -->
+                    <div class="filter-item custom-date-range" id="custom-date-container" style="display: none;">
+                        <input type="date" id="filter-date-start" class="global-input-date" title="Data Inicial">
+                        <span>até</span>
+                        <input type="date" id="filter-date-end" class="global-input-date" title="Data Final">
+                    </div>
+
+                    <!-- Reset Filters Button -->
+                    <button class="btn btn-reset-filters" id="btn-reset-filters">
+                        <i class="fa-solid fa-rotate-left"></i> Limpar Filtros
+                    </button>
+                </div>
+            </section>
+
+            <!-- Dashboard Content Panels -->
+            <div class="content-body">
+                
+                <!-- KPI Section Row 1 (Volume & Pipeline) -->
+                <section class="kpi-grid">
+                    <div class="kpi-card glass-card card-primary">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Leads Recebidos (Total)</span>
+                            <h2 class="kpi-value" id="kpi-total-leads">613</h2>
+                            <span class="kpi-subtext" id="kpi-subtext-leads">Consolidado CRM Supremo + Meta Ads</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass-card card-success">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">VGV Concluído (Vendas)</span>
+                            <h2 class="kpi-value" id="kpi-total-vgv">R$ 6.540.000</h2>
+                            <span class="kpi-subtext" id="kpi-subtext-vgv">Vendas Realizadas / Contratos</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass-card card-warning">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Aguardando Atendimento (SLA)</span>
+                            <h2 class="kpi-value" id="kpi-waiting-leads">19</h2>
+                            <span class="kpi-subtext"><i class="fa-solid fa-triangle-exclamation"></i> Requer contato imediato</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass-card card-danger">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-user-xmark"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Vendas Desistidas / Perdas</span>
+                            <h2 class="kpi-value" id="kpi-lost-leads">5</h2>
+                            <span class="kpi-subtext" id="kpi-subtext-lost">Taxa de Desistência</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- KPI Section Row 2 (Conversion Rates: Visitas, Documentos, Vendas) -->
+                <section class="kpi-grid">
+                    <div class="kpi-card glass-card card-info">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Taxa de Conversão em Visita</span>
+                            <h2 class="kpi-value" id="kpi-rate-visit">14.8%</h2>
+                            <span class="kpi-subtext" id="kpi-subtext-visit">Visitas Agendadas / Realizadas</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass-card card-purple">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-file-signature"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Taxa Envio de Documentos / Proposta</span>
+                            <h2 class="kpi-value" id="kpi-rate-docs">9.8%</h2>
+                            <span class="kpi-subtext" id="kpi-subtext-docs">Elaborando Proposta / Analisando</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass-card card-gold">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Taxa de Conversão Venda Concluída</span>
+                            <h2 class="kpi-value" id="kpi-rate-vendas">6.6%</h2>
+                            <span class="kpi-subtext" id="kpi-subtext-vendas">Vendas Realizadas vs Total Recebido</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass-card card-active">
+                        <div class="kpi-icon">
+                            <i class="fa-solid fa-comments"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Em Atendimento Ativo</span>
+                            <h2 class="kpi-value" id="kpi-active-leads">3</h2>
+                            <span class="kpi-subtext">Negociação / Visita Ativa</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- RANKING DOS MELHORES CORRETORES SECTION (DASH GERAL) -->
+                <section class="section-container" id="section-ranking-overview">
+                    <div class="card-header border-bottom flex-between flex-wrap">
+                        <div class="header-info">
+                            <h2><i class="fa-solid fa-trophy text-gold"></i> Ranking dos Melhores Corretores</h2>
+                            <p>Classificação em tempo real por Vendas Realizadas, VGV Gerado, Visitas e Taxa de Conversão</p>
+                        </div>
+                        <button class="btn btn-outline-gold" id="btn-view-matriz-desempenho">
+                            <i class="fa-solid fa-chart-line"></i> Ver Matriz Completa
+                        </button>
+                    </div>
+
+                    <div class="ranking-podium-container" id="ranking-podium">
+                        <!-- Populated dynamically by JS (Top 3 Podium Cards) -->
+                    </div>
+
+                    <div class="ranking-leaderboard-wrapper">
+                        <h4 class="leaderboard-title"><i class="fa-solid fa-list-ol"></i> Classificação Geral da Equipe</h4>
+                        <div class="leaderboard-grid" id="ranking-leaderboard-list">
+                            <!-- Populated dynamically by JS (4th place onwards) -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VISUAL DESEMPENHO POR CORRETOR SECTION (MATCHING REFERENCE SPREADSHEET) -->
+                <section class="section-container" id="section-desempenho">
+                    <div class="card-header border-bottom flex-between flex-wrap">
+                        <div class="header-info">
+                            <h2><i class="fa-solid fa-chart-user text-primary"></i> Desempenho por Corretor & Matriz Comercial</h2>
+                            <p>Visão visual comparativa idêntica à planilha de acompanhamento (Leads, Agendamentos, Visitas, Vendas e Desistências)</p>
+                        </div>
+                        <div class="desempenho-header-actions">
+                            <div class="search-box-sm">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="search-corretor-matriz" placeholder="Filtrar corretor...">
+                            </div>
+                            <span class="badge badge-gold" id="desempenho-active-badge">16 Corretores Ativos</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Summary Strip -->
+                    <div class="desempenho-kpi-strip">
+                        <div class="kpi-mini-card">
+                            <span class="mini-label">Total Corretores</span>
+                            <span class="mini-val" id="matriz-total-corretores">16</span>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <span class="mini-label">Leads Recebidos</span>
+                            <span class="mini-val text-primary" id="matriz-total-leads">613</span>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <span class="mini-label">Agendamentos</span>
+                            <span class="mini-val text-warning" id="matriz-total-agendamentos">141</span>
+                        </div>
+                        <div class="kpi-mini-card">
+                            <span class="mini-label">Visitas Realizadas</span>
+                            <span class="mini-val text-info" id="matriz-total-visitas">91</span>
+                        </div>
+                        <div class="kpi-mini-card highlight-won">
+                            <span class="mini-label">Vendas Efetivadas</span>
+                            <span class="mini-val text-success" id="matriz-total-vendas">5</span>
+                        </div>
+                        <div class="kpi-mini-card highlight-lost">
+                            <span class="mini-label">Vendas Desistidas</span>
+                            <span class="mini-val text-danger" id="matriz-total-desistidas">42</span>
+                        </div>
+                    </div>
+
+                    <!-- Spreadsheet Matrix Table matching reference -->
+                    <div class="matriz-table-wrapper table-responsive">
+                        <table class="custom-table excel-style-table" id="table-matriz-desempenho">
+                            <thead>
+                                <tr>
+                                    <th class="col-corretor">Corretor</th>
+                                    <th class="text-center col-leads">Leads Recebidos</th>
+                                    <th class="text-center col-agendamentos">Agendamento pra Vir na Achei</th>
+                                    <th class="text-center col-visitas">Visitas Realizada na Achei</th>
+                                    <th class="text-center col-vendas">Vendas Efetivadas</th>
+                                    <th class="text-center col-desistidas">Vendas Desistidas</th>
+                                    <th class="text-center col-taxa">Taxa de Conversão</th>
+                                    <th class="text-right col-vgv">VGV Gerado</th>
+                                    <th class="text-center col-acao">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matriz-table-body">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Comparative Bar Chart Container -->
+                    <div class="desempenho-chart-container glass-card" style="margin-top: 24px; padding: 20px;">
+                        <div class="card-header" style="padding-bottom: 12px; border-bottom: 1px solid var(--border-color); margin-bottom: 16px;">
+                            <h3><i class="fa-solid fa-chart-column"></i> Gráfico Comparativo: Funil de Produção por Corretor</h3>
+                            <p>Proporção visual de Leads vs Agendamentos vs Visitas vs Vendas de cada corretor</p>
+                        </div>
+                        <div class="chart-container" style="height: 340px;">
+                            <canvas id="chart-corretores-performance"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VISUAL CLEAR FUNNEL BOARD SECTION -->
+                <section class="section-container" id="section-funnel">
+                    <div class="card-header border-bottom flex-between">
+                        <div class="header-info">
+                            <h2><i class="fa-solid fa-filter-circle-dollar"></i> Funil Comercial Kanban & Pipeline de Vendas</h2>
+                            <p>Etapas do pipeline ativas no CRM Supremo com taxas de conversão e VGV acumulado</p>
+                        </div>
+                        <div class="funnel-meta-summary">
+                            <span class="badge badge-info" id="funnel-active-filter-badge">Exibindo Todos os Corretores</span>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Funnel Visual Flow -->
+                    <div class="funnel-flow-container">
+                        <!-- Stage 1 -->
+                        <div class="funnel-stage-card stage-waiting" id="funnel-stage-waiting" data-stage="Aguardando Atendimento">
+                            <div class="stage-header">
+                                <span class="stage-step-num">ETAPA 1</span>
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <h3 class="stage-title">Aguardando Atendimento</h3>
+                            <div class="stage-count" id="funnel-count-waiting">19</div>
+                            <div class="stage-sub">Fila de Espera CRM</div>
+                            <div class="stage-vgv" id="funnel-vgv-waiting">R$ 4.142.000</div>
+                            <button class="btn-stage-filter" onclick="filterByStage('Aguardando Atendimento')">
+                                <i class="fa-solid fa-eye"></i> Ver Leads
+                            </button>
+                        </div>
+
+                        <div class="funnel-arrow">
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <span class="conversion-rate" id="conv-rate-1">36.8%</span>
+                        </div>
+
+                        <!-- Stage 2 -->
+                        <div class="funnel-stage-card stage-pre" id="funnel-stage-pre" data-stage="Pré Atendimento">
+                            <div class="stage-header">
+                                <span class="stage-step-num">ETAPA 2</span>
+                                <i class="fa-solid fa-comments"></i>
+                            </div>
+                            <h3 class="stage-title">Pré Atendimento</h3>
+                            <div class="stage-count" id="funnel-count-pre">7</div>
+                            <div class="stage-sub">Primeiro Contato / Triagem</div>
+                            <div class="stage-vgv" id="funnel-vgv-pre">R$ 1.526.000</div>
+                            <button class="btn-stage-filter" onclick="filterByStage('Pré Atendimento')">
+                                <i class="fa-solid fa-eye"></i> Ver Leads
+                            </button>
+                        </div>
+
+                        <div class="funnel-arrow">
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <span class="conversion-rate" id="conv-rate-2">42.8%</span>
+                        </div>
+
+                        <!-- Stage 3 -->
+                        <div class="funnel-stage-card stage-active" id="funnel-stage-active" data-stage="Em Atendimento">
+                            <div class="stage-header">
+                                <span class="stage-step-num">ETAPA 3</span>
+                                <i class="fa-solid fa-handshake"></i>
+                            </div>
+                            <h3 class="stage-title">Em Atendimento</h3>
+                            <div class="stage-count" id="funnel-count-active">3</div>
+                            <div class="stage-sub">Negociação / Visita Ativa</div>
+                            <div class="stage-vgv" id="funnel-vgv-active">R$ 654.000</div>
+                            <button class="btn-stage-filter" onclick="filterByStage('Em Atendimento')">
+                                <i class="fa-solid fa-eye"></i> Ver Leads
+                            </button>
+                        </div>
+
+                        <div class="funnel-arrow">
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <span class="conversion-rate" id="conv-rate-3">66.7%</span>
+                        </div>
+
+                        <!-- Stage 4 -->
+                        <div class="funnel-stage-card stage-proposal" id="funnel-stage-proposal" data-stage="Elaborando Proposta">
+                            <div class="stage-header">
+                                <span class="stage-step-num">ETAPA 4</span>
+                                <i class="fa-solid fa-file-signature"></i>
+                            </div>
+                            <h3 class="stage-title">Proposta / Documentos</h3>
+                            <div class="stage-count" id="funnel-count-proposal">2</div>
+                            <div class="stage-sub">Elaborando Proposta / Documentos</div>
+                            <div class="stage-vgv" id="funnel-vgv-proposal">R$ 436.000</div>
+                            <button class="btn-stage-filter" onclick="filterByStage('Elaborando Proposta')">
+                                <i class="fa-solid fa-eye"></i> Ver Leads
+                            </button>
+                        </div>
+
+                        <div class="funnel-arrow">
+                            <i class="fa-solid fa-chevron-right"></i>
+                            <span class="conversion-rate" id="conv-rate-4">100.0%</span>
+                        </div>
+
+                        <!-- Stage 5 -->
+                        <div class="funnel-stage-card stage-won" id="funnel-stage-won" data-stage="Venda Realizada">
+                            <div class="stage-header">
+                                <span class="stage-step-num">SUCESSO</span>
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <h3 class="stage-title">Vendas Realizadas</h3>
+                            <div class="stage-count" id="funnel-count-won">4</div>
+                            <div class="stage-sub">Contrato Assinado / Fechado</div>
+                            <div class="stage-vgv" id="funnel-vgv-won">R$ 872.000</div>
+                            <button class="btn-stage-filter" onclick="filterByStage('Venda Realizada')">
+                                <i class="fa-solid fa-eye"></i> Ver Vendas
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Corretores Leaderboard Section -->
+                <section class="section-container" id="section-corretores">
+                    <div class="card-header border-bottom">
+                        <div class="header-info">
+                            <h2><i class="fa-solid fa-trophy"></i> Metrificação & Tabela de Performance dos Corretores</h2>
+                            <p>Leads recebidos, visitas realizadas, envio de documentos, propostas aprovadas, vendas realizadas e desistências</p>
+                        </div>
+                    </div>
+
+                    <div class="corretores-table-wrapper table-responsive">
+                        <table class="custom-table" id="table-corretores">
+                            <thead>
+                                <tr>
+                                    <th>Corretor</th>
+                                    <th class="text-center">Leads Recebidos</th>
+                                    <th class="text-center">Ativos Pipeline</th>
+                                    <th class="text-center">Visitas (% Conv.)</th>
+                                    <th class="text-center">Propostas / Docs</th>
+                                    <th class="text-center">Vendas Realizadas</th>
+                                    <th class="text-center">Vendas Desistidas</th>
+                                    <th class="text-right">VGV Concluído</th>
+                                    <th class="text-center">Status SLA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corretores-table-body">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Analytics Charts Row -->
+                <section class="charts-grid-row1">
+                    <div class="chart-card glass-card col-span-8">
+                        <div class="card-header">
+                            <div class="header-info">
+                                <h3><i class="fa-solid fa-chart-column"></i> Progresso das Etapas do Funil Comercial</h3>
+                                <p>Volume de clientes por estágio do processo de vendas</p>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-funnel"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card glass-card col-span-4">
+                        <div class="card-header">
+                            <div class="header-info">
+                                <h3><i class="fa-solid fa-chart-pie"></i> Distribuição por Status de Vendas</h3>
+                                <p>Proporção entre Ativos, Vendas Concluídas e Perdas</p>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-intent"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Integrated Leads Table Section -->
+                <section class="section-container" id="section-leads">
+                    <div class="card-header border-bottom flex-between flex-wrap">
+                        <div class="header-info">
+                            <h2><i class="fa-solid fa-address-book"></i> Central de Leads Integrada (CRM Supremo + Meta Ads)</h2>
+                            <p>Gestão unificada com filtro por corretor, situação e contato direto via WhatsApp</p>
+                        </div>
+
+                        <!-- Filter Controls -->
+                        <div class="table-filter-bar">
+                            <div class="filter-group">
+                                <label for="filter-corretor"><i class="fa-solid fa-user"></i> Corretor:</label>
+                                <select id="filter-corretor" class="filter-select">
+                                    <option value="ALL">Todos os Corretores</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="filter-situacao"><i class="fa-solid fa-tag"></i> Situação:</label>
+                                <select id="filter-situacao" class="filter-select">
+                                    <option value="ALL">Todas as Situações</option>
+                                    <option value="Aguardando Atendimento">Aguardando Atendimento</option>
+                                    <option value="Pré Atendimento">Pré Atendimento</option>
+                                    <option value="Em Atendimento">Em Atendimento</option>
+                                    <option value="Elaborando Proposta">Elaborando Proposta</option>
+                                    <option value="Venda Realizada">Venda Realizada</option>
+                                    <option value="Venda Desistida">Venda Desistida</option>
+                                </select>
+                            </div>
+
+                            <div class="filter-group">
+                                <label for="filter-fonte"><i class="fa-solid fa-share-nodes"></i> Fonte:</label>
+                                <select id="filter-fonte" class="filter-select">
+                                    <option value="ALL">Todas as Fontes</option>
+                                    <option value="CRM Supremo API">CRM Supremo API</option>
+                                    <option value="Meta Ads">Meta Ads</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leads Table -->
+                    <div class="table-responsive">
+                        <table class="custom-table" id="table-leads">
+                            <thead>
+                                <tr>
+                                    <th>Lead / Cliente</th>
+                                    <th>Origem / Fonte</th>
+                                    <th>Telefone</th>
+                                    <th>Corretor Atribuído</th>
+                                    <th>Situação CRM</th>
+                                    <th>Status Geral</th>
+                                    <th>Última Atualização</th>
+                                    <th class="text-center">Ação Rápida</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leads-table-body">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Batch Lead Distribution Modal -->
+    <div class="modal-backdrop" id="modal-distribution">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-bolt"></i> Distribuição Rápida de Leads Meta Ads</h3>
+                <button class="btn-close-modal" id="btn-close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">
+                    Selecione o método de distribuição para atribuição rápida de novos leads aos corretores da Achei Imóveis.
+                </p>
+
+                <div class="distribution-options">
+                    <div class="dist-option-card active" data-mode="equal">
+                        <div class="dist-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div class="dist-info">
+                            <h4>Distribuição Igualitária (Roleta)</h4>
+                            <p>Divide os leads pendentes igualmente entre os corretores selecionados</p>
+                        </div>
+                    </div>
+
+                    <div class="dist-option-card" data-mode="performance">
+                        <div class="dist-icon"><i class="fa-solid fa-star"></i></div>
+                        <div class="dist-info">
+                            <h4>Priorizar Corretores de Alta Conversão</h4>
+                            <p>Prioriza corretores com maior taxa de resposta e vendas concluídas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="corretores-selection-list">
+                    <label>Corretores elegíveis para receber os leads:</label>
+                    <div class="checkbox-group" id="dist-corretores-list">
+                        <!-- Populated JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="btn-cancel-dist">Cancelar</button>
+                <button class="btn btn-primary" id="btn-confirm-dist">
+                    <i class="fa-solid fa-check"></i> Executar Distribuição
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
