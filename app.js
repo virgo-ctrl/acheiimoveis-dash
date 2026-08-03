@@ -1048,17 +1048,50 @@ document.addEventListener('DOMContentLoaded', () => {
     async function syncGoogleSheetsLive() {
         const btnSync = document.getElementById('btn-sync-sheets');
         const originalText = btnSync.innerHTML;
-        btnSync.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sincronizando...`;
         btnSync.disabled = true;
 
         try {
+            // Dispara o sync no servidor (retorna imediatamente)
+            const triggerRes = await fetch('/api/sync', { method: 'POST' });
+            const triggerData = await triggerRes.json();
+
+            if (triggerData.status === 'already_syncing') {
+                btnSync.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sincronização em andamento...`;
+            } else {
+                btnSync.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando dados da API...`;
+            }
+
+            // Poll /api/leads/status até o sync terminar
+            let attempts = 0;
+            const maxAttempts = 120; // até 2 minutos
+            await new Promise(resolve => {
+                const poll = setInterval(async () => {
+                    attempts++;
+                    try {
+                        const statusRes = await fetch('/api/leads/status');
+                        const status = await statusRes.json();
+                        if (!status.syncing || attempts >= maxAttempts) {
+                            clearInterval(poll);
+                            resolve();
+                        }
+                    } catch {
+                        clearInterval(poll);
+                        resolve();
+                    }
+                }, 1000);
+            });
+
+            // Recarrega os dados do cache atualizado
             await loadDataset();
+
             btnSync.innerHTML = `<i class="fa-solid fa-check"></i> Dados Atualizados!`;
             setTimeout(() => {
                 btnSync.innerHTML = originalText;
                 btnSync.disabled = false;
             }, 3000);
+
         } catch (e) {
+            console.error('[v0] Erro na sincronização:', e);
             btnSync.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Erro na sincronização`;
             setTimeout(() => {
                 btnSync.innerHTML = originalText;
