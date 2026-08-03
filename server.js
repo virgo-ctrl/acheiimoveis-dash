@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 const TOKEN = process.env.SUPREMO_CRM_TOKEN;
 const BASE_URL = 'https://api.supremocrm.com.br/v1/leads';
 const MAX_PAGES = 200;
