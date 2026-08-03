@@ -1049,54 +1049,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnSync = document.getElementById('btn-sync-sheets');
         const originalText = btnSync.innerHTML;
         btnSync.disabled = true;
+        btnSync.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sincronizando com CRM...`;
 
         try {
-            // Dispara o sync no servidor (retorna imediatamente)
-            const triggerRes = await fetch('/api/sync', { method: 'POST' });
-            const triggerData = await triggerRes.json();
+            const syncRes = await fetch('/api/sync', { method: 'POST' });
+            const syncData = await syncRes.json();
 
-            if (triggerData.status === 'already_syncing') {
-                btnSync.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sincronização em andamento...`;
-            } else {
-                btnSync.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Buscando dados da API...`;
-            }
+            if (!syncRes.ok) throw new Error(syncData.error || 'Erro desconhecido');
 
-            // Poll /api/leads/status até o sync terminar
-            let attempts = 0;
-            const maxAttempts = 120; // até 2 minutos
-            await new Promise(resolve => {
-                const poll = setInterval(async () => {
-                    attempts++;
-                    try {
-                        const statusRes = await fetch('/api/leads/status');
-                        const status = await statusRes.json();
-                        if (!status.syncing || attempts >= maxAttempts) {
-                            clearInterval(poll);
-                            resolve();
-                        }
-                    } catch {
-                        clearInterval(poll);
-                        resolve();
-                    }
-                }, 1000);
-            });
-
-            // Recarrega os dados do cache atualizado
+            // Recarrega os dados do Supabase já atualizados
             await loadDataset();
 
-            btnSync.innerHTML = `<i class="fa-solid fa-check"></i> Dados Atualizados!`;
+            btnSync.innerHTML = `<i class="fa-solid fa-check"></i> ${syncData.upserted} leads atualizados!`;
             setTimeout(() => {
                 btnSync.innerHTML = originalText;
                 btnSync.disabled = false;
-            }, 3000);
+            }, 4000);
 
         } catch (e) {
-            console.error('[v0] Erro na sincronização:', e);
             btnSync.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Erro na sincronização`;
             setTimeout(() => {
                 btnSync.innerHTML = originalText;
                 btnSync.disabled = false;
-            }, 3000);
+            }, 4000);
         }
     }
 
