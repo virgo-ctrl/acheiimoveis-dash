@@ -9,6 +9,7 @@
     "dev": "node --env-file-if-exists=/vercel/share/.env.project server.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.0",
     "express": "^5.2.1"
   }
 }
