@@ -97,7 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Data Async
     async function loadDataset() {
         try {
-            const res = await fetch('data.json?v=' + Date.now());
+            const res = await fetch('/api/leads');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             leadsData = await res.json();
             
             // Extract unique Corretores
