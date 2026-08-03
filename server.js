@@ -37,6 +37,37 @@ function loadFallback() {
     }
 }
 
+// Converte o formato do Supabase (n8n) para o formato esperado pelo app.js
+function transformLead(r) {
+    return {
+        id:                         r.id,
+        nome:                       r.nome_pessoa,
+        telefone:                   r.telefone_pessoa,
+        whatsapp_phone:             r.ddi_pessoa ? `${r.ddi_pessoa}${r.telefone_pessoa}` : r.telefone_pessoa,
+        email:                      r.email_pessoa,
+        origem:                     r.nome_origem,
+        campanha:                   r.nome_campanha,
+        source:                     r.nome_origem,
+        data_captura:               r.data_captura,
+        data_ultima_interacao:      r.data_ultima_interacao,
+        corretor:                   r.nome_corretor || 'Pendente (Não Atribuído)',
+        id_corretor:                r.id_corretor,
+        status_geral:               r.nome_status,
+        situacao:                   r.nome_situacao,
+        etapa:                      r.nome_etapa,
+        calor:                      r.calor,
+        motivo_perda:               r.motivo_perda,
+        valor_oportunidade:         r.valor_vendido,
+        interesses:                 r.interesses,
+        anotacoes:                  r.anotacoes,
+        nome_empreendimento:        r.nome_empreendimento,
+        nome_imovel:                r.nome_imovel,
+        nome_construtora:           r.nome_construtora,
+        nome_qualificador:          r.nome_qualificador,
+        fl_integracao:              r.fl_integracao,
+    };
+}
+
 // Busca todos os leads do Supabase paginando de 1000 em 1000
 async function fetchFromSupabase() {
     if (!supabase) throw new Error('Supabase não configurado.');
@@ -51,7 +82,7 @@ async function fetchFromSupabase() {
             .from('leads')
             .select('*')
             .range(from, from + PAGE_SIZE - 1)
-            .order('data_ultima_interacao', { ascending: false });
+            .order('data_captura', { ascending: false });
 
         if (error) throw new Error(`Supabase error: ${error.message}`);
 
@@ -60,7 +91,7 @@ async function fetchFromSupabase() {
         from += PAGE_SIZE;
     }
 
-    return allLeads;
+    return allLeads.map(transformLead);
 }
 
 async function refreshCache() {
