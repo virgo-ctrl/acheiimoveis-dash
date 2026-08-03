@@ -1,0 +1,14 @@
+{
+  "name": "acheii-imoveis-dash",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=/vercel/share/.env.project server.js",
+    "dev": "node --env-file-if-exists=/vercel/share/.env.project server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
