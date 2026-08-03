@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             corretoresList = Array.from(corrSet).sort();
 
             populateBrokerSelects();
+            updateDatePresetLabels();
             initCharts();
             setupEventListeners();
             populateDistributionModalCorretores();
@@ -129,12 +130,43 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBrokerSelect.innerHTML = optionsHtml;
     }
 
+    // Helper: get YYYY-MM-DD string for today or N days ago (local time)
+    function getLocalDateString(offsetDays = 0) {
+        const d = new Date();
+        d.setDate(d.getDate() - offsetDays);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    // Helper: format YYYY-MM-DD as DD/MM/YYYY for display
+    function formatDateBR(isoStr) {
+        const [y, m, d] = isoStr.split('-');
+        return `${d}/${m}/${y}`;
+    }
+
+    // Update date preset option labels dynamically
+    function updateDatePresetLabels() {
+        const todayStr = getLocalDateString(0);
+        const yesterdayStr = getLocalDateString(1);
+        const sel = document.getElementById('global-filter-date-preset');
+        if (!sel) return;
+        const todayOpt = sel.querySelector('option[value="TODAY"]');
+        const yestOpt = sel.querySelector('option[value="YESTERDAY"]');
+        if (todayOpt) todayOpt.textContent = `Hoje (${formatDateBR(todayStr)})`;
+        if (yestOpt) yestOpt.textContent = `Ontem (${formatDateBR(yesterdayStr)})`;
+    }
+
     // Get Filtered Dataset based on Global Broker Filter & Date of Last Update Filter
     function getFilteredLeads() {
         const corrFilter = document.getElementById('global-filter-corretor').value;
         const datePreset = document.getElementById('global-filter-date-preset').value;
         const startDate = document.getElementById('filter-date-start').value;
         const endDate = document.getElementById('filter-date-end').value;
+
+        const todayStr = getLocalDateString(0);
+        const yesterdayStr = getLocalDateString(1);
 
         return leadsData.filter(r => {
             // Broker filter
@@ -147,9 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const dateStr = lastUpdate ? lastUpdate.split(' ')[0] : '';
 
             if (datePreset === 'TODAY') {
-                if (dateStr !== '2026-07-27') return false;
+                if (dateStr !== todayStr) return false;
             } else if (datePreset === 'YESTERDAY') {
-                if (dateStr !== '2026-07-26') return false;
+                if (dateStr !== yesterdayStr) return false;
             } else if (datePreset === 'CUSTOM') {
                 if (startDate && dateStr < startDate) return false;
                 if (endDate && dateStr > endDate) return false;
