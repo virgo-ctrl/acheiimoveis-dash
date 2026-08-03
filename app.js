@@ -94,25 +94,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
 
-    // Load Data Async
+    // Load Data Async — only reloads data and re-renders; does NOT re-init charts/listeners
     async function loadDataset() {
-        try {
-            const res = await fetch('/api/leads');
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            leadsData = await res.json();
-            
-            // Extract unique Corretores
-            const corrSet = new Set(leadsData.map(l => l.corretor).filter(c => c && c !== 'Pendente (Não Atribuído)'));
-            corretoresList = Array.from(corrSet).sort();
+        const res = await fetch('/api/leads');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        leadsData = await res.json();
 
-            populateBrokerSelects();
-            updateDatePresetLabels();
+        // Extract unique Corretores
+        const corrSet = new Set(leadsData.map(l => l.corretor).filter(c => c && c !== 'Pendente (Não Atribuído)'));
+        corretoresList = Array.from(corrSet).sort();
+
+        populateBrokerSelects();
+        updateDatePresetLabels();
+        populateDistributionModalCorretores();
+        renderDashboard();
+    }
+
+    // First-time initialisation: load data, then wire up charts and listeners
+    async function init() {
+        try {
+            await loadDataset();
             initCharts();
             setupEventListeners();
-            populateDistributionModalCorretores();
-            renderDashboard();
         } catch (err) {
-            console.error('Error loading dataset:', err);
+            console.error('Erro ao inicializar dashboard:', err);
         }
     }
 
@@ -1144,5 +1149,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Start App
-    loadDataset();
+    init();
 });
